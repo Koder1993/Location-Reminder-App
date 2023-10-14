@@ -43,10 +43,10 @@
             android:id="@+id/reminder_title_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:gravity="center"
             android:text="@{reminderDataItem.title}"
             android:textSize="@dimen/text_size_normal"
-            android:layout_marginBottom="16dp"
             tools:text="Title" />
 
         <TextView
@@ -62,10 +62,10 @@
             android:id="@+id/reminder_description_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:gravity="center"
             android:text="@{reminderDataItem.description}"
             android:textSize="@dimen/text_size_normal"
-            android:layout_marginBottom="16dp"
             tools:text="Description" />
 
         <TextView
