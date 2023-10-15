@@ -56,7 +56,7 @@ class SaveReminderFragment : BaseFragment() {
             requireContext(),
             0,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
     }
 
@@ -76,7 +76,19 @@ class SaveReminderFragment : BaseFragment() {
     private var locationLauncher =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { res ->
             if (res.resultCode == RESULT_OK) {
+                checkNotificationPermissionForGeofence()
+            }
+        }
+
+    private val requestNotificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            Log.d(TAG, "requestNotificationPermission, isGranted $isGranted")
+            if (isGranted) {
                 createGeoFenceForLocation()
+            } else {
+                Snackbar.make(
+                    binding.root, R.string.error_notification_permission, Snackbar.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -169,7 +181,7 @@ class SaveReminderFragment : BaseFragment() {
         locationSettingsResponseTask.addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.d(TAG, "locationSettingsResponseTask: successful")
-                createGeoFenceForLocation()
+                checkNotificationPermissionForGeofence()
             }
         }
 
@@ -217,7 +229,7 @@ class SaveReminderFragment : BaseFragment() {
             return
         }
 
-        geoClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+        geoClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
             addOnSuccessListener {
                 _viewModel.validateAndSaveReminder(reminderDataItem)
             }
@@ -226,6 +238,23 @@ class SaveReminderFragment : BaseFragment() {
                     .show()
                 _viewModel.showSnackBarInt.value = R.string.error_adding_geofence
             }
+        }
+    }
+
+    private fun checkNotificationPermissionForGeofence() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.d(TAG, "checkNotificationPermissionForGeofence, permission granted")
+                createGeoFenceForLocation()
+            } else {
+                Log.d(TAG, "checkNotificationPermissionForGeofence, requesting permission")
+                requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            createGeoFenceForLocation()
         }
     }
 
