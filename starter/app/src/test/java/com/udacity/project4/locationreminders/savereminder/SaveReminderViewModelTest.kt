@@ -69,6 +69,28 @@ class SaveReminderViewModelTest {
         assertThat(reminderResult.data.id, `is`(reminderDataItem.id))
     }
 
+    // testing reminder not found in repository error scenario
+    @Test
+    fun test_reminderNotFoundInRepository() = runTest {
+        repository.deleteAllReminders()
+        viewModel.validateAndSaveReminder(reminderDataItem) // saves data to repository
+        val reminderResult = repository.getReminder("2") as Result.Error
+
+        assertThat(reminderResult.message, `is`("Error while fetching reminder"))
+    }
+
+    // testing reminder error  in repository using flag to mock exception scenario
+    @Test
+    fun test_reminderErrorUsingFlag() = runTest {
+        repository.deleteAllReminders()
+        viewModel.validateAndSaveReminder(reminderDataItem) // saves data to repository
+        repository.setError(true)
+        val reminderResult = repository.getReminder("1") as Result.Error
+
+        assertThat(reminderResult.message, `is`("Error while fetching reminder"))
+    }
+
+
     @Test
     fun test_saveReminderAndCheckLoading() = runTest {
         Dispatchers.setMain(StandardTestDispatcher())

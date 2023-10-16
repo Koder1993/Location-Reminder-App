@@ -30,16 +30,16 @@ class FakeDataSource : ReminderDataSource {
         reminderDTOList.add(reminder)
     }
 
+    // error case can be faked manually by setting isError flag OR using wrong id
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        return try {
-            val reminderDTO = reminderDTOList.firstOrNull { it.id == id }
-            reminderDTO?.let {
-                Result.Success(it)
-            } ?: run {
-                Result.Error("Reminder not found")
-            }
-        } catch(e: Exception) {
-            Result.Error(e.localizedMessage)
+        if (isError) {
+            return Result.Error("Error while fetching reminder")
+        }
+        val reminderDTO = reminderDTOList.firstOrNull { it.id == id }
+        return reminderDTO?.let {
+            Result.Success(it)
+        } ?: run {
+            Result.Error("Error while fetching reminder")
         }
     }
 
