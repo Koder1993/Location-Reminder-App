@@ -76,7 +76,7 @@ class SaveReminderViewModelTest {
         viewModel.validateAndSaveReminder(reminderDataItem) // saves data to repository
         val reminderResult = repository.getReminder("2") as Result.Error
 
-        assertThat(reminderResult.message, `is`("Error while fetching reminder"))
+        assertThat(reminderResult.message, `is`("Reminder not found!"))
     }
 
     // testing reminder error  in repository using flag to mock exception scenario

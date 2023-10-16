@@ -39,7 +39,7 @@ class FakeDataSource : ReminderDataSource {
         return reminderDTO?.let {
             Result.Success(it)
         } ?: run {
-            Result.Error("Error while fetching reminder")
+            Result.Error("Reminder not found!")
         }
     }
 
